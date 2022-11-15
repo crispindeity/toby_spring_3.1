@@ -5,12 +5,19 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import study.toby.chapter01.ConnectionMaker;
 import study.toby.chapter01.domain.User;
 
-public abstract class UserDao {
+public class UserDao {
+
+    private ConnectionMaker connectionMaker;
+
+    public UserDao(ConnectionMaker connectionMaker) {
+        this.connectionMaker = connectionMaker;
+    }
 
     public void add(User user) throws ClassNotFoundException, SQLException {
-        Connection c = getConnection();
+        Connection c = connectionMaker.makeConnection();
 
         PreparedStatement ps = c.prepareStatement(
                 "insert into users(id, name, password) values (?, ?, ?)"
@@ -25,7 +32,7 @@ public abstract class UserDao {
     }
 
     public User get(String id) throws ClassNotFoundException, SQLException {
-        Connection c = getConnection();
+        Connection c = connectionMaker.makeConnection();
 
         PreparedStatement ps = c.prepareStatement(
                 "select * from users where id = ?"
@@ -48,10 +55,9 @@ public abstract class UserDao {
         return user;
     }
 
-    public abstract Connection getConnection() throws ClassNotFoundException, SQLException;
-
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
-        UserDao userDao = new NUserDao();
+        ConnectionMaker connectionMaker1 = new DConnectionMaker();
+        UserDao userDao = new UserDao(connectionMaker1);
 
         User user = new User();
 
